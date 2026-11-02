@@ -1,0 +1,5 @@
+# 로컬 DB와 빌드 결과
+*.db
+*.db-shm
+*.db-wal
+/cloud-portal

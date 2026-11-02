@@ -1,0 +1,12 @@
+{{define "content"}}
+<section class="card narrow danger">
+  <h1>VM 지우기</h1>
+  <p><strong>{{.Data.Name}}</strong> VM({{.Data.Flavor}}{{with .Data.FloatingIP}}, {{.}}{{end}})을 지울까?</p>
+  <p>디스크 안의 파일도 모두 사라지고 되돌릴 수 없다. 유동 IP는 돌려줘서 다른 VM에 붙일 수 있게 된다.</p>
+  <form method="post" action="/me/vms/{{.Data.ID}}/delete" class="row">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button type="submit" class="danger">지운다</button>
+    <a href="/me/vms">그만두기</a>
+  </form>
+</section>
+{{end}}

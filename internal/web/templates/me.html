@@ -1,0 +1,43 @@
+{{define "content"}}
+{{- $u := .User}}
+<section class="card">
+  <h1>{{$u.Name}} <span class="muted">{{$u.Login}}</span> <span class="badge {{$u.Status}}">{{status $u.Status}}</span></h1>
+  {{- if eq $u.Status "suspended"}}
+  <p class="flash err">계정이 정지돼 웹 콘솔에 로그인할 수 없다. VM은 그대로 있다. 운영진에게 문의한다.</p>
+  {{- else if eq $u.Status "expired"}}
+  <p class="flash err">사용 기한이 지나 웹 콘솔에 로그인할 수 없다. VM은 그대로 있다. 운영진에게 문의한다.</p>
+  {{- end}}
+  <dl class="grid">
+    <dt>만료일</dt><dd>{{with nulldate $u.ExpiresAt}}{{.}}{{else}}없음{{end}}</dd>
+    <dt>할당량</dt><dd>VM {{$u.QuotaInstances}}개 · vCPU {{$u.QuotaCores}} · RAM {{gb $u.QuotaRamMb}} · 유동 IP {{$u.QuotaFloatingIps}}개</dd>
+    {{- with .Data.Usage}}
+    <dt>쓰는 중</dt><dd>VM {{.Instances}}개 · vCPU {{.Cores}} · RAM {{intgb .RAMMB}} · 유동 IP {{.FloatingIPs}}개</dd>
+    {{- else}}{{if .Data.UsageErr}}<dt>쓰는 중</dt><dd class="muted">지금은 가져오지 못했다</dd>{{end}}
+    {{- end}}
+  </dl>
+</section>
+
+{{- if eq $u.Status "active"}}
+{{- if eq $u.CloudPasswordSynced 0}}
+<section class="card">
+  <h2>웹 콘솔 비밀번호 맞추기</h2>
+  <p>웹 콘솔은 포털과 같은 비밀번호를 쓴다. 처음 한 번만 포털 비밀번호를 다시 입력한다.</p>
+  <form method="post" action="/me/sync-password" class="row">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <input name="password" type="password" autocomplete="current-password" placeholder="포털 비밀번호" required aria-label="포털 비밀번호">
+    <button type="submit">맞추기</button>
+  </form>
+</section>
+{{- else}}
+<section class="card">
+  <h2>VM 쓰는 법</h2>
+  <ol class="steps">
+    <li><a href="/me/key">SSH 키</a>를 등록한다. 키가 없으면 그 화면에서 새로 만든다.</li>
+    <li><a href="/me/vms">내 VM</a>에서 이름과 크기를 골라 VM을 만든다. 켜지면 유동 IP가 저절로 붙는다.</li>
+    <li>실습실 PC에서 <code>ssh ubuntu@유동IP</code>로 접속해 VM 안에서 작업한다.</li>
+  </ol>
+  <p class="muted">SSH(22)와 ping만 열려 있다. 다른 포트(예: 웹 서버 80)를 열려면 <a href="{{.ConsoleURL}}">웹 콘솔</a>에 포털 아이디·비밀번호로 로그인해 네트워크(Network) → 보안 그룹(Security Groups)에서 연다. 비밀번호는 <a href="/me/password">포털에서</a> 바꾼다.</p>
+</section>
+{{- end}}
+{{- end}}
+{{end}}

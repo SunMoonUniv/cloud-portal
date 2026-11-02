@@ -1,0 +1,16 @@
+{{define "content"}}
+<section class="card narrow">
+  <h1>가입 신청</h1>
+  <p class="warn">이 포털은 암호화되지 않은 HTTP로 동작한다. <strong>학교 포털·메일 비밀번호를 쓰지 말고</strong> 여기서만 쓸 비밀번호를 새로 정한다.</p>
+  <form method="post" action="/signup">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <label>아이디(학번)<input name="login" value="{{.Data.Login}}" pattern="[A-Za-z0-9._\-]{3,32}" autocomplete="username" required autofocus></label>
+    <label>이름<input name="name" value="{{.Data.Name}}" maxlength="40" autocomplete="name" required></label>
+    <label>비밀번호(8자 이상)<input name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></label>
+    <label>비밀번호 다시<input name="password2" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></label>
+    <button type="submit">신청</button>
+  </form>
+  <p class="muted">운영진이 승인하면 VM을 만들 수 있다. 이 비밀번호는 웹 콘솔에도 그대로 쓴다.</p>
+  <p class="muted">이미 신청했으면 <a href="/login">로그인</a>한다.</p>
+</section>
+{{end}}

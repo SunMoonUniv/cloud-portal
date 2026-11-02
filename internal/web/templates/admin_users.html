@@ -1,0 +1,35 @@
+{{define "content"}}
+<section class="card">
+  <h1>학생</h1>
+  <nav class="tabs">
+    {{- range .Data.Statuses}}
+    <a href="/admin/users?status={{.}}" {{if eq . $.Data.Status}}aria-current="page"{{end}}>{{status .}} {{index $.Data.Counts .}}</a>
+    {{- end}}
+    <a href="/admin/users?status=all" {{if eq "all" .Data.Status}}aria-current="page"{{end}}>전체</a>
+  </nav>
+  {{- if .Data.Users}}
+  <table>
+    <thead><tr><th>아이디</th><th>이름</th><th>상태</th><th>신청</th><th>OpenStack</th>{{if eq .Data.Status "pending"}}<th></th>{{end}}</tr></thead>
+    <tbody>
+    {{- range .Data.Users}}
+    <tr>
+      <td><a href="/admin/users/{{.Login}}">{{.Login}}</a></td>
+      <td>{{.Name}}</td>
+      <td><span class="badge {{.Status}}">{{status .Status}}</span></td>
+      <td>{{datetime .CreatedAt}}<br><span class="muted">{{.SignupIp}}</span></td>
+      <td>{{if .SyncError}}<span class="bad" title="{{.SyncError}}">오류</span>{{else if .CloudUserID}}맞춤 {{nulltime .SyncedAt}}{{else}}<span class="muted">없음</span>{{end}}</td>
+      {{- if eq $.Data.Status "pending"}}
+      <td class="actions">
+        <form method="post" action="/admin/users/{{.Login}}/approve" class="inline"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button type="submit">승인</button></form>
+        <form method="post" action="/admin/users/{{.Login}}/reject" class="inline"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button type="submit" class="secondary">거절</button></form>
+      </td>
+      {{- end}}
+    </tr>
+    {{- end}}
+    </tbody>
+  </table>
+  {{- else}}
+  <p class="muted">없다.</p>
+  {{- end}}
+</section>
+{{end}}

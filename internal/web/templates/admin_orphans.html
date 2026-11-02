@@ -1,0 +1,17 @@
+{{define "content"}}
+<section class="card">
+  <h1>포털에 없는 계정</h1>
+  <p class="muted">OpenStack에 학생 프로젝트(태그 student)는 있는데 포털에는 없는 계정이다. <code>scripts/student.sh</code>로 만든 계정 등이 여기에 보인다. 포털은 이 계정을 건드리지 않는다. 지우려면 node01에서 <code>scripts/student.sh del 아이디 --yes</code>를 쓴다.</p>
+  {{- if .Data.Err}}<p class="flash err">OpenStack 목록을 가져오지 못했다: {{.Data.Err}}</p>{{end}}
+  {{- if .Data.Projects}}
+  <table>
+    <thead><tr><th>아이디</th><th>이름</th><th>프로젝트 ID</th></tr></thead>
+    <tbody>
+    {{- range .Data.Projects}}<tr><td>{{.Login}}</td><td>{{.Name}}</td><td><code>{{.ID}}</code></td></tr>{{end}}
+    </tbody>
+  </table>
+  {{- else if not .Data.Err}}
+  <p>없다.</p>
+  {{- end}}
+</section>
+{{end}}

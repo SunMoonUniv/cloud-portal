@@ -1,0 +1,12 @@
+{{define "content"}}
+<section class="card narrow">
+  <h1>로그인</h1>
+  <form method="post" action="/login">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <label>아이디(학번)<input name="login" value="{{.Data.Login}}" autocomplete="username" required autofocus></label>
+    <label>비밀번호<input name="password" type="password" autocomplete="current-password" required></label>
+    <button type="submit">로그인</button>
+  </form>
+  <p class="muted">처음이면 <a href="/signup">가입 신청</a>을 한다. 비밀번호를 잊었으면 운영진에게 임시 비밀번호를 받는다.</p>
+</section>
+{{end}}

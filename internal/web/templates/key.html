@@ -1,0 +1,41 @@
+{{define "content"}}
+<section class="card">
+  <h1>SSH 키</h1>
+  {{- if .Data.Fingerprint}}
+  <p>등록한 키: <code>{{.Data.Fingerprint}}</code></p>
+  <p class="muted">키를 바꾸면 <strong>앞으로 만드는 VM</strong>에만 들어간다. 이미 있는 VM에는 예전 키가 그대로 있다.</p>
+  {{- else}}
+  <p>VM에 접속할 때 쓸 SSH 키가 아직 없다. 둘 중 하나를 한다.</p>
+  {{- end}}
+</section>
+
+<section class="card">
+  <h2>키가 없으면: 새로 만들기</h2>
+  <p>포털이 키 쌍을 만들어 공개 키는 등록하고, 개인 키 파일(<code>student-cloud-key</code>)을 한 번만 내려 준다. 포털은 개인 키를 저장하지 않으므로 잃어버리면 새로 만들어야 한다.</p>
+  <form method="post" action="/me/key/new" class="inline">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button type="submit">키 만들고 내려받기</button>
+  </form>
+  <details>
+    <summary>내려받은 파일 쓰는 법</summary>
+    <ol class="steps">
+      <li>Windows: 파일을 <code>C:\Users\내이름\.ssh\</code> 폴더로 옮긴다(폴더가 없으면 만든다).<br>
+        명령 프롬프트에서 <code>ssh -i %USERPROFILE%\.ssh\student-cloud-key ubuntu@유동IP</code></li>
+      <li>macOS·Linux: <code>mv ~/Downloads/student-cloud-key ~/.ssh/ &amp;&amp; chmod 600 ~/.ssh/student-cloud-key</code><br>
+        <code>ssh -i ~/.ssh/student-cloud-key ubuntu@유동IP</code></li>
+    </ol>
+  </details>
+</section>
+
+<section class="card">
+  <h2>키가 있으면: 공개 키 붙여 넣기</h2>
+  <form method="post" action="/me/key">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <label>공개 키(<code>.pub</code> 파일 내용 한 줄)
+      <textarea name="key" rows="3" placeholder="ssh-ed25519 AAAA… 내이름@내컴퓨터" required>{{.Data.Key}}</textarea>
+    </label>
+    <button type="submit">등록</button>
+  </form>
+  <p class="muted">직접 만들려면 명령 프롬프트(Windows 10 이상)나 터미널에서 <code>ssh-keygen -t ed25519</code>을 실행하고, <code>.ssh\id_ed25519.pub</code> 파일 내용을 붙여 넣는다. 그러면 <code>ssh ubuntu@유동IP</code>만으로 접속된다.</p>
+</section>
+{{end}}

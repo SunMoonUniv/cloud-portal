@@ -1,0 +1,81 @@
+{{define "content"}}
+{{- $u := .Data.U}}
+<p><a href="/admin/users?status={{$u.Status}}">← {{status $u.Status}} 목록</a></p>
+<section class="card">
+  <h1>{{$u.Name}} <span class="muted">{{$u.Login}}</span> <span class="badge {{$u.Status}}">{{status $u.Status}}</span></h1>
+  <dl class="grid">
+    <dt>가입 신청</dt><dd>{{datetime $u.CreatedAt}} · {{$u.SignupIp}}</dd>
+    <dt>만료일</dt><dd>{{with nulldate $u.ExpiresAt}}{{.}}{{else}}없음{{end}}</dd>
+    <dt>할당량</dt><dd>VM {{$u.QuotaInstances}}개 · vCPU {{$u.QuotaCores}} · RAM {{gb $u.QuotaRamMb}} · 유동 IP {{$u.QuotaFloatingIps}}개</dd>
+    {{- with .Data.Usage}}
+    <dt>쓰는 중</dt><dd>VM {{.Instances}}개 · vCPU {{.Cores}} · RAM {{intgb .RAMMB}} · 유동 IP {{.FloatingIPs}}개</dd>
+    {{- else}}{{if .Data.UsageErr}}<dt>쓰는 중</dt><dd class="muted">지금은 가져오지 못했다</dd>{{end}}
+    {{- end}}
+    <dt>OpenStack</dt>
+    <dd>
+      {{- if $u.CloudProjectID}}프로젝트 student-{{$u.Login}} · 웹 콘솔 비밀번호 {{if eq $u.CloudPasswordSynced 1}}맞춤{{else}}아직 안 맞춤{{end}}{{else}}<span class="muted">계정 없음</span>{{end}}
+      {{- with nulltime $u.SyncedAt}}<br><span class="muted">마지막으로 맞춘 때 {{.}}</span>{{end}}
+      {{- if $u.SyncError}}<br><span class="bad">오류: {{$u.SyncError}}</span>{{end}}
+    </dd>
+  </dl>
+  <div class="actions">
+    {{- if eq $u.Status "pending"}}
+    <form method="post" action="/admin/users/{{$u.Login}}/approve" class="inline"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit">승인</button></form>
+    <form method="post" action="/admin/users/{{$u.Login}}/reject" class="inline"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit" class="secondary">거절</button></form>
+    {{- end}}
+    {{- if eq $u.Status "active"}}
+    <form method="post" action="/admin/users/{{$u.Login}}/suspend" class="inline"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit" class="secondary">정지</button></form>
+    {{- end}}
+    {{- if or (eq $u.Status "suspended") (eq $u.Status "expired")}}
+    <form method="post" action="/admin/users/{{$u.Login}}/resume" class="inline"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit">다시 쓰게 하기</button></form>
+    {{- end}}
+    {{- if ne $u.Status "pending"}}{{if ne $u.Status "rejected"}}
+    <form method="post" action="/admin/users/{{$u.Login}}/sync" class="inline"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit" class="secondary">OpenStack에 다시 맞추기</button></form>
+    {{- end}}{{end}}
+  </div>
+</section>
+
+<section class="card">
+  <h2>만료일</h2>
+  <form method="post" action="/admin/users/{{$u.Login}}/expiry" class="row">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <input type="date" name="expires" value="{{nulldate $u.ExpiresAt}}" aria-label="만료일">
+    <button type="submit">저장</button>
+  </form>
+  <p class="muted">그날이 끝나면 웹 콘솔 로그인이 막힌다. VM은 그대로 둔다. 비우고 저장하면 기한이 없어진다.</p>
+</section>
+
+<section class="card">
+  <h2>할당량</h2>
+  <form method="post" action="/admin/users/{{$u.Login}}/quota" class="quota">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <label>VM 수<input type="number" name="instances" min="0" max="10" value="{{$u.QuotaInstances}}"></label>
+    <label>vCPU<input type="number" name="cores" min="0" max="16" value="{{$u.QuotaCores}}"></label>
+    <label>RAM(GB)<input type="number" name="ram_gb" min="0" max="32" value="{{.Data.RAMGB}}"></label>
+    <label>유동 IP<input type="number" name="floating_ips" min="0" max="5" value="{{$u.QuotaFloatingIps}}"></label>
+    <button type="submit">저장</button>
+  </form>
+  <p class="muted">기본값은 VM 2 · vCPU 2 · RAM 4GB · 유동 IP 1(s.medium 1대, s.small 1대 또는 s.tiny 2대).</p>
+</section>
+
+{{- if ne $u.Status "rejected"}}
+<section class="card">
+  <h2>임시 비밀번호</h2>
+  <form method="post" action="/admin/users/{{$u.Login}}/temp-password" class="inline">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button type="submit" class="secondary">임시 비밀번호 만들기</button>
+  </form>
+  <p class="muted">비밀번호를 잊은 학생에게 준다. 포털과 웹 콘솔에 같이 들어가고, 학생은 다음 로그인 때 새 비밀번호를 정해야 한다.</p>
+</section>
+{{- end}}
+
+<section class="card danger">
+  <h2>지우기</h2>
+  <p>VM, 유동 IP, 포트, 학생이 만든 이미지, 보안 그룹, 키 페어를 모두 지우고 계정과 프로젝트를 없앤다. 되돌릴 수 없다.</p>
+  <form method="post" action="/admin/users/{{$u.Login}}/delete" class="row">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <input name="confirm" placeholder="{{$u.Login}}" autocomplete="off" aria-label="확인을 위해 아이디 입력" required>
+    <button type="submit" class="danger">지우기</button>
+  </form>
+</section>
+{{end}}

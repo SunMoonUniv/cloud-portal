@@ -1,0 +1,21 @@
+{{define "content"}}
+<section class="card">
+  <h1>감사 로그</h1>
+  {{- if .Data.Rows}}
+  <table>
+    <thead><tr><th>시각</th><th>누가</th><th>무엇을</th><th>대상</th><th>내용</th></tr></thead>
+    <tbody>
+    {{- range .Data.Rows}}
+    <tr><td>{{datetime .At}}</td><td>{{.Actor}}</td><td>{{.Action}}</td><td>{{.Target}}</td><td>{{.Detail}}</td></tr>
+    {{- end}}
+    </tbody>
+  </table>
+  {{- else}}
+  <p class="muted">아직 없다.</p>
+  {{- end}}
+  <p class="pager">
+    {{- if gt .Data.Page 1}}<a href="/admin/audit?page={{sub1 .Data.Page}}">← 최근</a>{{end}}
+    {{- if .Data.More}} <a href="/admin/audit?page={{add1 .Data.Page}}">이전 →</a>{{end}}
+  </p>
+</section>
+{{end}}

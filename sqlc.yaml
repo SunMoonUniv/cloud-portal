@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: sqlite
+    schema:
+      - sql/schema.sql
+      - sql/002_ssh_key.sql
+    queries: sql/queries.sql
+    gen:
+      go:
+        package: db
+        out: internal/store/db

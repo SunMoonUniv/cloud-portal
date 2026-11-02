@@ -1,0 +1,42 @@
+{{define "base" -}}
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="htmx-config" content='{"includeIndicatorStyles": false}'>
+<title>{{.Title}} · 학생 클라우드</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/htmx.min.js" defer></script>
+<script src="/static/sse.min.js" defer></script>
+</head>
+<body hx-headers='{"X-CSRF-Token": "{{.CSRF}}"}'>
+<header class="top">
+  <a class="brand" href="/">학생 클라우드</a>
+  {{- with .User}}
+  <nav>
+    {{- if eq .Role "admin"}}
+    <a href="/admin/users?status=pending">학생</a>
+    <a href="/admin/audit">감사 로그</a>
+    <a href="/admin/orphans">포털에 없는 계정</a>
+    {{- else if ne .Status "pending"}}
+    {{- if eq .Status "active"}}<a href="/me/vms">내 VM</a>{{end}}
+    <a href="/me">내 정보</a>
+    {{- end}}
+    <a href="/me/password">비밀번호</a>
+    <form method="post" action="/logout" class="inline">
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <button type="submit" class="link">{{.Login}} 로그아웃</button>
+    </form>
+  </nav>
+  {{- end}}
+</header>
+<main>
+  {{- if .Flash}}<p class="flash {{.FlashKind}}" role="status">{{.Flash}}</p>{{end}}
+  {{- if .Error}}<p class="flash err" role="alert">{{.Error}}</p>{{end}}
+  {{template "content" .}}
+</main>
+<footer>선문대학교 학생 클라우드 · 실습실 LAN 전용 알파(MVP-0) · 웹 콘솔 <a href="{{.ConsoleURL}}">{{.ConsoleURL}}</a></footer>
+</body>
+</html>
+{{- end}}

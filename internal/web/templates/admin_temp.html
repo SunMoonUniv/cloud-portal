@@ -1,0 +1,10 @@
+{{define "content"}}
+<section class="card narrow">
+  <h1>임시 비밀번호</h1>
+  <p><strong>{{.Data.U.Name}}</strong>({{.Data.U.Login}})의 임시 비밀번호다. 이 화면을 벗어나면 다시 볼 수 없다.</p>
+  <p class="secret"><code>{{.Data.Password}}</code></p>
+  <p class="muted">학생은 이 비밀번호로 포털에 로그인한 뒤 곧바로 새 비밀번호를 정한다.
+    {{- if .Data.Synced}} 웹 콘솔에도 같은 임시 비밀번호가 들어갔다.{{else}} 아직 OpenStack 계정이 없어 포털에만 들어갔다.{{end}}</p>
+  <p><a href="/admin/users/{{.Data.U.Login}}">돌아가기</a></p>
+</section>
+{{end}}
