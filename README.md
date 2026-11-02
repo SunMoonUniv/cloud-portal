@@ -100,7 +100,7 @@ ansible-playbook playbooks/portal.yml
 
 - 서비스: `cloud-portal.service`(사용자 `cloud-portal`, 80번 권한만), 실행 파일 `/usr/local/bin/cloud-portal`
 - 설정: `/etc/cloud-portal/portal.env`, Keystone 비밀번호 `/etc/cloud-portal/keystone.env`(둘 다 root 600)
-- DB: `/var/lib/cloud-portal/portal.db`. 백업은 이 파일을 복사한다(서비스를 멈추거나 `sqlite3 .backup`)
+- DB: `/var/lib/cloud-portal/portal.db`. cloud-ops `scripts/backup.sh`가 매일 04:30(KST)에 sqlite 백업 API로 떠서 node02에 둔다(서비스는 그대로). 되살리는 법은 cloud-ops README "백업과 복구"
 - 로그: `journalctl -u cloud-portal`
 
 첫 운영진 계정은 서버에서 만든다. DB 파일 주인이 바뀌지 않게 **반드시 `-u cloud-portal`로** 돌린다.
