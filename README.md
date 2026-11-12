@@ -7,6 +7,7 @@
 - Go 1.27, Gin, html/template + htmx(승인 대기 화면만 SSE), SQLite(modernc, CGO 없음)
 - OpenStack 규칙은 `~/cloud-ops/scripts/student.sh`와 같다. 한쪽을 바꾸면 다른 쪽도 같이 바꾼다.
 - 저장소: https://github.com/SunMoonUniv/cloud-portal (공개). 배포는 https://github.com/SunMoonUniv/cloud-ops 의 `playbooks/portal.yml`이 맡는다. 공개 저장소이니 DB 파일과 `/etc/cloud-portal/*.env`는 넣지 않는다.
+- 전체 구성과 다른 장비에 다시 세우는 순서: https://github.com/SunMoonUniv/cloud-ops/blob/main/docs/REBUILD.md
 
 ## 흐름
 
